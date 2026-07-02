@@ -1,19 +1,42 @@
-/**接着改进，把每个节点(或细胞)改成可以鼠标按下拖放到任意位置 
+/**
+ * EvolutionWindow0是利用Gemeni进行的第一版AI编程，具体这个程序的产生过程可以参见record目录中的gemeni问答记录
 */
 package ai;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 /**
  * 4像素神经网络：高速演化与定时画面定格仿真器 (鼠标可拖拽细胞版)
  */
-public class EvolutionWindow extends JFrame {
-    private EvolutionPanel evolutionPanel;
+public class EvolutionWindow0 extends JFrame {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private EvolutionPanel evolutionPanel;
     private JLabel statusLabel;
     private JTextField speedField;
     private JButton startBtn;
@@ -29,7 +52,7 @@ public class EvolutionWindow extends JFrame {
     private Thread evolutionThread = null;
     private javax.swing.Timer renderTimer = null;
 
-    public EvolutionWindow() {
+    public EvolutionWindow0() {
         this.setTitle("4像素神经网络：高速演化与定量定格仿真器 (支持鼠标拖拽细胞)");
         this.setSize(950, 720);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -179,7 +202,7 @@ public class EvolutionWindow extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            EvolutionWindow window = new EvolutionWindow();
+            EvolutionWindow0 window = new EvolutionWindow0();
             window.setVisible(true);
         });
     }
@@ -191,8 +214,9 @@ public class EvolutionWindow extends JFrame {
     // =========================================================================
     // 内部类 2: 支持鼠标拖拽的渲染面板
     // =========================================================================
-    public static class EvolutionPanel extends JPanel {
-        private VisualOrganism currentOrganism;
+    public static class EvolutionPanel extends JPanel { 
+		private static final long serialVersionUID = 1L;
+		private VisualOrganism currentOrganism;
         private long currentGeneration = 0;
         private String currentStageText = "等待进化开始...";
         
