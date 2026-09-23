@@ -69,6 +69,19 @@ runs/                   # 忽略的运行期 telemetry 输出
 7. 单像素条件反射；
 8. 双像素条件反射与泛化评估。
 
+Stage 00—07 均已有最小可运行 Python 实现、pytest、JSON 配置、文档和统一命令：
+
+```bash
+python scripts/run_stage.py 00  # 确定性内核
+python scripts/run_stage.py 01  # 生命周期
+python scripts/run_stage.py 02  # 选择与突变
+python scripts/run_stage.py 03  # 局部感知
+python scripts/run_stage.py 04  # 避险行为
+python scripts/run_stage.py 05  # 树分裂发育
+python scripts/run_stage.py 06  # 单像素反射
+python scripts/run_stage.py 07  # 双像素反射
+```
+
 完整实验门禁见 [实验路线图](docs/experiments/README.md)。
 
 ## 文档入口
