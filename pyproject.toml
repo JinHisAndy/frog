@@ -19,5 +19,5 @@ dev = ["pytest>=8"]
 testpaths = ["tests"]
 addopts = "-q"
 
-[tool.setuptools]
-packages = ["frog"]
+[tool.setuptools.packages.find]
+include = ["frog*"]

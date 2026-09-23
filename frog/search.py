@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 from dataclasses import dataclass
 
-from .model import Action, Chemical, Link, Node, Observation
+from .model import Chemical, Frame, Link, Node, Observation
 from .network import BITE, FLEE, INPUT_NAMES, Network
 
 ENEMY = Observation((True, True, False, False), pain=False, sweet=False)
@@ -18,6 +18,10 @@ class SearchConfig:
     seed: int
     max_attempts: int = 50_000
 
+    def __post_init__(self) -> None:
+        if self.max_attempts <= 0:
+            raise ValueError("max_attempts must be greater than zero")
+
 
 @dataclass
 class SearchResult:
@@ -27,6 +31,7 @@ class SearchResult:
     network: Network | None
     blind_test: dict[str, dict[str, bool]]
     blind_inputs: dict[str, dict[str, object]]
+    training_trace: list[Frame]
     method: str = "random_search"
 
     def to_dict(self) -> dict[str, object]:
@@ -38,6 +43,7 @@ class SearchResult:
             "network": self.network.to_dict() if self.network else None,
             "blind_test": self.blind_test,
             "blind_inputs": self.blind_inputs,
+            "training_trace": [frame.to_dict() for frame in self.training_trace],
         }
 
 
@@ -58,13 +64,17 @@ def _candidate(random_source: random.Random) -> Network:
     nodes[BITE] = Node(BITE, threshold=50.0, layer=2)
 
     sources = list(nodes)
-    targets = list(nodes)
     links: list[Link] = []
     for _ in range(random_source.randint(22, 33)):
         source = random_source.choice(sources)
-        target = random_source.choice(targets)
-        if source in (FLEE, BITE) or source == target:
+        targets = [
+            identifier
+            for identifier, node in nodes.items()
+            if nodes[source].layer < node.layer
+        ]
+        if not targets:
             continue
+        target = random_source.choice(targets)
         links.append(
             Link(
                 source=source,
@@ -78,7 +88,7 @@ def _candidate(random_source: random.Random) -> Network:
 
 
 def _blind_test(network: Network) -> tuple[dict[str, dict[str, bool]], dict[str, dict[str, object]]]:
-    scenarios = {"enemy": ENEMY, "food": FOOD, "noise": NOISE}
+    scenarios = blind_observations()
     outcomes: dict[str, dict[str, bool]] = {}
     inputs: dict[str, dict[str, object]] = {}
     for name, observation in scenarios.items():
@@ -96,17 +106,38 @@ def _passes(outcomes: dict[str, dict[str, bool]]) -> bool:
     }
 
 
+def _train(network: Network, label: str, observation: Observation, index: int) -> list[Frame]:
+    before = Frame(
+        index=index,
+        phase=label,
+        message=f"{label}: captured immediately before the real training step",
+        observation=observation,
+        network=network.to_dict(),
+    )
+    action = network.forward(observation, learn=True)
+    after = Frame(
+        index=index + 1,
+        phase=label,
+        message=f"{label}: captured immediately after the real training step",
+        observation=observation,
+        active_chemicals=sorted(network.active_chemicals(), key=str),
+        action=action,
+        network=network.to_dict(),
+    )
+    return [before, after]
+
+
 def find_candidate(config: SearchConfig) -> SearchResult:
     random_source = random.Random(config.seed)
-    blind_inputs = {name: observation.to_dict() for name, observation in {"enemy": ENEMY, "food": FOOD, "noise": NOISE}.items()}
+    blind_inputs = {name: observation.to_dict() for name, observation in blind_observations().items()}
     for attempt in range(1, config.max_attempts + 1):
         network = _candidate(random_source)
-        network.forward(TRAIN_ENEMY, learn=True)
-        network.forward(TRAIN_FOOD, learn=True)
+        training_trace = _train(network, "train_enemy", TRAIN_ENEMY, 0)
+        training_trace.extend(_train(network, "train_food", TRAIN_FOOD, len(training_trace)))
         outcomes, inputs = _blind_test(network)
         if _passes(outcomes):
-            return SearchResult(config.seed, attempt, True, network, outcomes, inputs)
-    return SearchResult(config.seed, config.max_attempts, False, None, {}, blind_inputs)
+            return SearchResult(config.seed, attempt, True, network, outcomes, inputs, training_trace)
+    return SearchResult(config.seed, config.max_attempts, False, None, {}, blind_inputs, [])
 
 
 def train_observations() -> tuple[Observation, Observation]:

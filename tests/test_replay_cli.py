@@ -15,6 +15,15 @@ def test_replay_frames_are_ordered_and_include_blind_frames():
     assert frames[-1].action is not None
 
 
+def test_replay_uses_the_trace_captured_during_search_without_retraining():
+    result = find_candidate(SearchConfig(seed=123, max_attempts=50_000))
+
+    assert result.training_trace
+    frames = build_replay(result)
+
+    assert frames[: len(result.training_trace)] == result.training_trace
+
+
 def test_search_cli_emits_parseable_random_search_evidence():
     completed = subprocess.run(
         [sys.executable, "-m", "frog", "search", "--seed", "123", "--max-attempts", "50000", "--json"],

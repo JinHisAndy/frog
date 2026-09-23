@@ -1,0 +1,2 @@
+# Historical archive preserves original Markdown spacing and line endings.
+archive/** whitespace=-trailing-space

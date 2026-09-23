@@ -1,9 +1,14 @@
-# `lab/`：可验证的干净重建区
+# Lab workspace
 
-此目录当前**刻意没有实现代码**。
+`lab/` is the clean workspace for future Stage 01—07 experiments. It contains no active implementation yet; Stage 00 lives in `frog/experiments/stage00_kernel/` because it establishes reusable core conventions.
 
-后续将在这里重建原作者从低级生命、遗传演化、神经结构生成到条件反射的思路，但会补上可复现实验、测试和统计验证。不得把 `history/` 的源码复制后直接当作新实验主线；历史代码只作为对照和学习素材。
+Each future stage should create:
 
-目标结构见：[../docs/architecture-target.md](../docs/architecture-target.md)。
+```text
+lab/stageNN-name/
+  README.md          # hypothesis, baseline, metrics, stop condition
+  config.json        # versioned parameters
+  notes.md           # interpretation and failure analysis
+```
 
-第一步不是写神经网络，而是建立 `sim-core` 的确定性、可测仿真时钟与随机源。
+The runnable implementation belongs in `frog/experiments/stageNN_name/`, tests in `tests/`, and generated telemetry in ignored `runs/`.

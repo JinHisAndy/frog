@@ -1,0 +1,8 @@
+{
+  "stage": "stage00-kernel",
+  "seed": 17,
+  "width": 5,
+  "height": 5,
+  "steps": 12,
+  "hypothesis": "The same configuration and seed produce an identical trajectory."
+}

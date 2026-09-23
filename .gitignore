@@ -43,3 +43,6 @@ __pycache__/
 htmlcov/
 dist/
 *.egg-info/
+
+# Local Hermes planning state
+.hermes/

@@ -16,6 +16,25 @@ class Network:
     nodes: dict[str, Node]
     links: list[Link] = field(default_factory=list)
 
+    def __post_init__(self) -> None:
+        self.validate()
+
+    def validate(self) -> None:
+        if not self.nodes:
+            raise ValueError("network must contain at least one node")
+        for identifier, node in self.nodes.items():
+            if identifier != node.identifier:
+                raise ValueError(f"node key {identifier!r} does not match node id {node.identifier!r}")
+            if node.layer < 0:
+                raise ValueError(f"node {identifier!r} has a negative layer")
+        for link in self.links:
+            if link.source not in self.nodes or link.target not in self.nodes:
+                raise ValueError(f"link {link.source!r}->{link.target!r} references an unknown node")
+            if self.nodes[link.source].layer >= self.nodes[link.target].layer:
+                raise ValueError(
+                    f"link {link.source!r}->{link.target!r} must point forward to a higher layer"
+                )
+
     def clone(self) -> "Network":
         return Network.from_dict(self.to_dict())
 
@@ -33,10 +52,10 @@ class Network:
             if node.layer == layer:
                 node.evaluate()
 
-    def propagate(self) -> None:
+    def propagate_from_layer(self, source_layer: int) -> None:
         for link in self.links:
             source = self.nodes[link.source]
-            if source.activated:
+            if source.layer == source_layer and source.activated:
                 self.nodes[link.target].current_input += link.weight
 
     def active_chemicals(self) -> set[Chemical]:
@@ -56,9 +75,10 @@ class Network:
         self.reset()
         self.set_observation(observation)
         self.evaluate_layer(0)
-        for layer in (1, 2):
-            self.propagate()
-            self.evaluate_layer(layer)
+        highest_layer = max(node.layer for node in self.nodes.values())
+        for source_layer in range(highest_layer):
+            self.propagate_from_layer(source_layer)
+            self.evaluate_layer(source_layer + 1)
         action = Action(flee=self.nodes[FLEE].activated, bite=self.nodes[BITE].activated)
         if learn:
             self.apply_plasticity(self.active_chemicals())
