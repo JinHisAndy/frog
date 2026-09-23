@@ -1,5 +1,26 @@
 <p align="center"> <img src="logo.png"> </p>
 
+> **Python-first 迁移说明（fork 维护者）**：当前可维护实现已迁移为 Python 标准库项目。它是一个**确定性、可检查的随机网络搜索原型**：四个视觉像素与痛/甜训练输入通过阈值节点、加权连接和化学调制标签，筛选能通过固定盲测场景的候选网络。它明确使用 `random_search`，**不是完整的遗传演化，也不证明生物脑机制、意识或 AGI**。原作者的理论叙事、历史说明与 GIF/图片保留为参考档案；Java 与 Maven 启动代码已按 fork 维护者要求移除。详见 [MIGRATION_TO_PYTHON.md](MIGRATION_TO_PYTHON.md)。
+
+## Python 快速开始（迁移后）
+
+要求：**Python 3.11+**。运行时仅使用标准库；测试使用 `pytest`。
+
+```bash
+python -m venv .venv
+# Linux/macOS
+. .venv/bin/activate
+# Windows PowerShell: .venv\Scripts\Activate.ps1
+
+python -m pip install -e ".[dev]"
+python -m pytest
+python -m frog search --seed 123 --max-attempts 50000 --json
+python -m frog replay --seed 123 --max-attempts 50000 --json
+python -m frog gui --seed 123 --max-attempts 50000
+```
+
+在无桌面服务器运行 `gui` 时，程序不会报错退出，而会提示改用 `replay --json`。
+
 ## Frog | 人工生命 
 这是一个人工生命试验项目，最终目标是创建“有自我意识表现”的模拟生命体。   
 

@@ -8,7 +8,6 @@ bin/
 *.orig
 *.new
 .idea/
-*.iml
 *.ipr
 test/**/build/
 examples/**/build/
@@ -28,3 +27,19 @@ examples/**/build/
 
 # virtual machine crash logs
 hs_err_pid*
+
+# Learning scaffold: local IDE state and generated experiment artifacts
+.vscode/
+lab/runs/
+.DS_Store
+Thumbs.db
+
+# Python environments and tooling
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+*.egg-info/
