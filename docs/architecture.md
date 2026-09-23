@@ -1,37 +1,51 @@
-# 架构
-
-## 分层
+# 架构：一个生命闭环，而不是一堆演示
 
 ```mermaid
-flowchart LR
-  CLI[CLI] --> SEARCH[search]
-  CLI --> REPLAY[replay]
-  SEARCH --> NETWORK[network]
-  REPLAY --> NETWORK
-  NETWORK --> MODEL[model]
-  VIEW[visualizer] --> REPLAY
-  TESTS[tests] --> CLI
-  ARCHIVE[archive/assets] -. reference only .-> DOCS[docs]
+flowchart TB
+  WORLD[World
+资源 / 危险 / 时间 / 局部可见性]
+  BODY[Organism
+位置 / 能量 / 生死]
+  SENSE[Observation
+局部模式]
+  CONTROL[Controller
+探索 / 趋向 / 回避]
+  MEMORY[Learning
+模式—动作—后果痕迹]
+  SCORE[Evaluation
+存活 / 收益 / 错误 / 泛化]
+  EVOLVE[Evolution
+选择 / 突变 / 多样性]
+  DEV[Development
+紧凑基因 → 结构]
+
+  WORLD --> SENSE --> CONTROL --> WORLD
+  WORLD --> BODY --> SCORE
+  CONTROL --> MEMORY --> CONTROL
+  SCORE --> EVOLVE --> DEV --> CONTROL
 ```
 
-| 模块 | 责任 | 禁止事项 |
-|---|---|---|
-| `frog.model` | Observation、Action、Node、Link、Frame | 不做 I/O、UI、搜索 |
-| `frog.network` | 图不变量、分层前向传播、可塑性 | 不定义实验情境 |
-| `frog.search` | 候选生成、训练情境、固定盲测、SearchResult | 不做 GUI |
-| `frog.replay` | 渲染已记录训练轨迹，生成无学习盲测帧 | 不重新训练候选 |
-| `frog.visualizer` | tkinter 展示 | 不改变网络和评估结果 |
-| `lab/` | 后续独立实验 | 不导入 archive 内容 |
+## 五层责任
 
-## 当前关键不变量
+| 层 | 现在的模块 | 责任 | 不负责什么 |
+|---|---|---|---|
+| 世界 | `frog.life.world` | 状态转移、局部感知、资源/危险后果 | 决定个体策略 |
+| 身体 | `frog.life.organism` | 能量、位置、生死 | 偷看世界或评估自己 |
+| 控制 | `frog.life.controller` | 从 Observation 输出动作 | 读取世界真值 |
+| 记忆 | `frog.life.learning` | 保留模式—动作—后果证据 | 在测试期读取后果 |
+| 跨代结构 | `frog.life.evolution`、`frog.life.development` | 选择、突变、紧凑结构表达 | 直接写死最终行为 |
 
-1. 每条链接必须从较低 layer 指向较高 layer；
-2. 每个源 layer 只传播一次；
-3. 盲测调用 `learn=False`，且观察中无痛/甜反馈；
-4. Replay 的训练帧来自 `SearchResult.training_trace`，不得重演并重新学习；
-5. 每次随机性从 `SearchConfig.seed` 派生；
-6. JSON 输入/输出必须可被验证，错误不允许静默吞掉。
+历史等价的 `frog.search`、`frog.network` 与 `frog.replay` 保留为“018 随机搜索检查器”，不作为新生命闭环的中心架构。
 
-## 后续演进
+## 当前工程约束
 
-新增 Stage 00 以后，建议迁移到 `src/frog/` 布局；本次结构清理不强行引入该变更，以避免目录移动和新实验同时发生。迁移应在专门提交中由 CLI 合同测试保护。
+1. `World.observe()` 是世界到个体的唯一信息出口；
+2. `Controller.act()` 只接收 `Observation`；
+3. 学习模块的预测接口不接收即时奖励；
+4. 评估模块应读取完整轨迹，不能从 GUI 状态判断；
+5. 任何跨代变化都必须记录 seed、基因、适应度和环境配置；
+6. 任何发育结构都必须可序列化、可重复生成、可限制资源预算。
+
+## 接下来最重要的重构
+
+不要继续扩展孤立的 `stageNN_*` 模块。后续代码应围绕 `frog.life` 扩展一个完整的 `life_loop` 实验：让生命周期世界产生评分，让记忆在个体内更新，让控制参数跨代演化，让发育规则决定控制结构。
