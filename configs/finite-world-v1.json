@@ -1,0 +1,38 @@
+{
+  "world": {
+    "width": 128,
+    "height": 128,
+    "topology": "torus",
+    "seed": 1,
+    "initial_resource_density": 0.02,
+    "resource_regeneration_rate": 0.0001,
+    "initial_organisms": 1,
+    "max_ticks": 10000
+  },
+  "cell_defaults": {
+    "initial_energy": 20,
+    "reproduction_threshold": 30,
+    "reproduction_energy": 15,
+    "food_energy": 12,
+    "basal_cost": 1,
+    "move_cost": 1,
+    "hazard_damage": 10,
+    "sensor_radius": 1,
+    "max_age": 500
+  },
+  "evolution": {
+    "mutation_probability": 0.1,
+    "mutation_sigma": 0.15,
+    "population_limit": 10000,
+    "objective": "viable_descendants"
+  },
+  "founder_genome": {
+    "food_attraction": 0.0,
+    "hazard_avoidance": 0.0,
+    "horizontal_bias": 0.0,
+    "vertical_bias": 0.0,
+    "exploration": 1.0,
+    "reproduction_threshold_delta": 0.0,
+    "basal_cost_delta": 0.0
+  }
+}

@@ -87,9 +87,10 @@ python -m frog replay --seed 123 --max-attempts 50000 --json
 2. [能力路线：每一段到底在证明什么](docs/capability-journey.md)
 3. [系统架构：世界、身体、学习、遗传、发育](docs/architecture.md)
 4. [底层世界与自演化框架设计](docs/tech/design-doc.md)
-5. [证据规则：什么算成功，什么只是好看的动画](docs/research-contract.md)
-6. [原项目启发与档案关系](docs/origin-and-boundary.md)
-7. [历史档案导览](docs/archive-guide.md)
+5. [第一阶段：有限世界与创始单细胞](docs/tech/finite-world-v1.md)
+6. [证据规则：什么算成功，什么只是好看的动画](docs/research-contract.md)
+7. [原项目启发与档案关系](docs/origin-and-boundary.md)
+8. [历史档案导览](docs/archive-guide.md)
 
 ## 诚实边界
 
